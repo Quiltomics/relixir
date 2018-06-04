@@ -26,3 +26,6 @@ Interest and/or skills in R internals and/or Elixir software development require
 
 ## Authors
 [Trang Tran](https://github.com/ttdtrang) and [Bohdan Khomtchouk, Ph.D.](https://github.com/Bohdan-Khomtchouk)
+
+## Preliminary testing
+Prelim testing is temporarily being conducted in [bioq](https://github.com/Bioquilt/bioq).
