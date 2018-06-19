@@ -9,21 +9,9 @@ defmodule Relixir do
   install.packages('littler')
   ```
   """
-  @doc """
-  Hello world.
-
-  ## Examples
-
-      iex> Relixir.hello
-      :world
-
-  """
-  def hello do
-    :world
-  end
 
   @doc """
-  Requires `littler` package
+  Execute a chunk of R code via little r command
   """
   def runR(rCode) when is_binary(rCode) do
     port = Port.open({:spawn_executable, littlerExec()},
@@ -32,25 +20,16 @@ defmodule Relixir do
     return_data(port)
   end
 
-  @doc """
-  Hello world.
-
-  ## Examples
-
-      iex> Rport.hello
-      "Hello from Rport!"
-
-  """
-  def hello do
-    "Hello from Rport!"
-  end
-  def hello(name) do
-    "Hi #{name}!"
+  # TODO
+  def callRFunc(rCode, args) when is_binary(rCode) do
+    port = Port.open({:spawn_executable, littlerExec()},
+                     [{:args, ["-e", "cat(serialize(connection=stdout(), object=" <> rCode <> "))"]},
+                     :stream, :binary, :exit_status, :hide, :use_stdio, :stderr_to_stdout])
+    return_data(port)
   end
   defp littlerExec() do
     String.replace( System.find_executable("R"), "/bin/R", "/library/littler/bin/r")
   end
-
   defp rscriptExec() do
     System.find_executable("R")
   end
