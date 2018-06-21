@@ -10,10 +10,32 @@ the oceans
 """
   end
 
-  test "exporting variable" do
+  test "exporting single R variables" do
     x = Relixir.runR("x <- (5+3)", "x")
     y = Relixir.runR("y <- (2*4)", "y")
     assert x == y
+
+    x = Relixir.runR("x <- matrix(1:10,nrow=2)", "x")
+    y = Relixir.runR("y <- matrix(1:10,ncol=5)", "y")
+    assert x == y
+  end
+
+  test "capture errors and exit graciously" do
+    # Syntax error
+    x = Relixir.runR("x <- c(1:5", "x")
+    assert x == :error
+
+    # Argument error
+    x = Relixir.runR("x <- log(0, base='e')", "x")
+    assert x == :error
+  end
+
+  @tag :tentative
+  test "exporting multiple R variables" do
+    {x, y} = Relixir.runR("""
+x <- c(1:5)
+y <- x**2
+""")
   end
 
   @tag :tentative
@@ -25,7 +47,7 @@ the oceans
     }
     a
     """
-    assert Relixir.runR(rCode) == 55
+    assert Relixir.runR(rCode, "a") == 55
   end
 
   @tag :tentative
