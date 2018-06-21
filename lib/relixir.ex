@@ -13,9 +13,25 @@ defmodule Relixir do
   @doc """
   Execute a chunk of R code via little r command
   """
-  def runR(rCode) when is_binary(rCode) do
+  def runR(rCode, export \\ "")
+  def runR(rCode, export) when (is_binary(rCode) and (export == "")) do
+    script = """
+    x <- (#{rCode})
+    cat(serialize(connection=stdout(), object=x))
+    """
     port = Port.open({:spawn_executable, littlerExec()},
-                     [{:args, ["-e", "cat(serialize(connection=stdout(), object=" <> rCode <> "))"]},
+                     [{:args, ["-e",script]},
+                     :stream, :binary, :exit_status, :hide, :use_stdio, :stderr_to_stdout])
+    return_data(port)
+  end
+
+  def runR(rCode, export) when (is_binary(rCode) and is_binary(export)) do
+    script = """
+    #{rCode}
+    cat(serialize(connection=stdout(), object=#{export}))
+    """
+    port = Port.open({:spawn_executable, littlerExec()},
+                     [{:args, ["-e",script]},
                      :stream, :binary, :exit_status, :hide, :use_stdio, :stderr_to_stdout])
     return_data(port)
   end
