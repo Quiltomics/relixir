@@ -22,7 +22,16 @@ defmodule Relixir do
     port = Port.open({:spawn_executable, littlerExec()},
                      [{:args, ["-e",script]},
                      :stream, :binary, :exit_status, :hide, :use_stdio, :stderr_to_stdout])
-    return_data(port)
+    data = receive do
+      {^port, {:data, data}} -> data
+    end
+
+    receive do
+      {^port, {:exit_status, status}}  when status > 0 ->
+        {:error, data}
+      {^port, {:exit_status, status}}  when status == 0 ->
+        data
+    end
   end
 
   def runR(rCode, export, %{"output" => output}) when (is_binary(rCode) and is_binary(export)) do
@@ -34,7 +43,16 @@ defmodule Relixir do
     port = Port.open({:spawn_executable, littlerExec()},
                      [{:args, ["-e",script]},
                      :stream, :binary, :exit_status, :hide, :use_stdio, :stderr_to_stdout])
-    return_data(port)
+    data = receive do
+      {^port, {:data, data}} -> data
+    end
+
+    receive do
+      {^port, {:exit_status, status}}  when status > 0 ->
+        {:error, data}
+      {^port, {:exit_status, status}}  when status == 0 ->
+        data
+    end
   end
 
   # TODO
@@ -67,13 +85,16 @@ defmodule Relixir do
   # end
 
 
-  ## Return data received at the given port if exec was successful, error message otherwise
-  defp return_data(port) do
-    receive do
-      {^port, {:data, data}} ->
-        data
-      {^port, {:exit_status, status}}  when status != 0 ->
-        :error
-    end
-  end
+  # ## Return data received at the given port if exec was successful, error message otherwise
+  # defp return_data(port) do
+  #   receive do
+  #     {^port, {:data, data}} ->
+  #       data
+  #     {^port, {:exit_status, status}}  when status != 0 ->
+  #       send port, {self(), {:exit_status, 0}}
+  #       :error
+  #     {^port, {:exit_status, status}}  when status == 0 ->
+  #       send port, {self(), :close}
+  #   end
+  # end
 end
