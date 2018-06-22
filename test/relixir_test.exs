@@ -30,6 +30,15 @@ the oceans
     assert x == :error
   end
 
+  @tag timeout: 3000
+  test "convert output to json" do
+    x = Relixir.runR("x <- 5+3", "x", %{"output" => "json"})
+    assert x == "[8]"
+
+    x = Relixir.runR("x <- c(1:5)", "x", %{"output" => "json"})
+    assert x= "[1,2,3,4,5]"
+  end
+
   @tag :tentative
   test "exporting multiple R variables" do
     {x, y} = Relixir.runR("""
