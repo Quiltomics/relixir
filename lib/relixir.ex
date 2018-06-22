@@ -21,19 +21,19 @@ defmodule Relixir do
     """
     port = Port.open({:spawn_executable, littlerExec()},
                      [{:args, ["-e",script]},
-                     :stream, :binary, :exit_status, :hide, :use_stdio])
+                     :stream, :binary, :exit_status, :hide, :use_stdio, :stderr_to_stdout])
     return_data(port)
   end
 
   def runR(rCode, export, %{"output" => output}) when (is_binary(rCode) and is_binary(export)) do
-    exportCmd = if (output == "json"), do: "jsonlite::toJSON(#{export})", else: "serialize(connection=stdout(), object=#{export})"
+    exportCmd = if (output == "json"), do: "jsonlite::toJSON(#{export}, force=TRUE)", else: "serialize(connection=stdout(), object=#{export})"
     script = """
     x <- (#{rCode})
     cat(#{exportCmd})
     """
     port = Port.open({:spawn_executable, littlerExec()},
                      [{:args, ["-e",script]},
-                     :stream, :binary, :exit_status, :hide, :use_stdio])
+                     :stream, :binary, :exit_status, :hide, :use_stdio, :stderr_to_stdout])
     return_data(port)
   end
 

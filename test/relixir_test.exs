@@ -36,7 +36,14 @@ the oceans
     assert x == "[8]"
 
     x = Relixir.runR("x <- c(1:5)", "x", %{"output" => "json"})
-    assert x= "[1,2,3,4,5]"
+    assert x == "[1,2,3,4,5]"
+
+    rCode = """
+    samples <- rnorm(n=10)
+    x <- hist(samples, plot=FALSE)
+    """
+    x = Relixir.runR(rCode, "x", %{"output" => "json"})
+    assert x == "hist"
   end
 
   @tag :tentative
