@@ -21,7 +21,7 @@ defmodule Relixir do
     """
     port = Port.open({:spawn_executable, littlerExec()},
                      [{:args, ["-e",script]},
-                     :stream, :binary, :exit_status, :hide, :use_stdio, :stderr_to_stdout])
+                     :stream, :binary, :exit_status, :hide, :use_stdio])
     return_data(port)
   end
 
@@ -32,44 +32,47 @@ defmodule Relixir do
     """
     port = Port.open({:spawn_executable, littlerExec()},
                      [{:args, ["-e",script]},
-                     :stream, :binary, :exit_status, :hide, :use_stdio, :stderr_to_stdout])
+                     :stream, :binary, :exit_status, :hide, :use_stdio])
     return_data(port)
   end
 
   # TODO
-  def callRFunc(rCode, args) when is_binary(rCode) do
-    port = Port.open({:spawn_executable, littlerExec()},
-                     [{:args, ["-e", "cat(serialize(connection=stdout(), object=" <> rCode <> "))"]},
-                     :stream, :binary, :exit_status, :hide, :use_stdio, :stderr_to_stdout])
-    return_data(port)
-  end
+  # def callRFunc(rCode, args) when is_binary(rCode) do
+  #   port = Port.open({:spawn_executable, littlerExec()},
+  #                    [{:args, ["-e", "cat(serialize(connection=stdout(), object=" <> rCode <> "))"]},
+  #                    :stream, :binary, :exit_status, :hide, :use_stdio, :stderr_to_stdout])
+  #   return_data(port)
+  # end
+
   defp littlerExec() do
     String.replace( System.find_executable("R"), "/bin/R", "/library/littler/bin/r")
   end
-  defp rscriptExec() do
-    System.find_executable("R")
-  end
-  def script(scriptFile, args) when is_list(args) do
-    port = Port.open({:spawn_executable, rscriptExec()}, [{:args, [scriptFile] ++ args}, :stream, :binary, :exit_status, :hide, :use_stdio, :stderr_to_stdout])
-    handle_output(port)
-  end
+  # defp rscriptExec() do
+  #   System.find_executable("R")
+  # end
+  # def script(scriptFile, args) when is_list(args) do
+  #   port = Port.open({:spawn_executable, rscriptExec()}, [{:args, [scriptFile] ++ args}, :stream, :binary, :exit_status, :hide, :use_stdio, :stderr_to_stdout])
+  #   handle_output(port)
+  # end
 
-  def handle_output(port) do
-    receive do
-      {^port, {:data, data}} ->
-        IO.puts(data)
-        handle_output(port)
-      {^port, {:exit_status, status}} ->
-        status
-    end
-  end
+  # def handle_output(port) do
+  #   receive do
+  #     {^port, {:data, data}} ->
+  #       IO.puts(data)
+  #       handle_output(port)
+  #     {^port, {:exit_status, status}} ->
+  #       {:exit_status, status}
+  #   end
+  # end
 
+
+  ## Return data received at the given port if exec was successful, error message otherwise
   defp return_data(port) do
     receive do
       {^port, {:data, data}} ->
         data
-      {^port, {:exit_status, status}} ->
-        status
+      {^port, {:exit_status, status}}  when status != 0 ->
+        :error
     end
   end
 end
