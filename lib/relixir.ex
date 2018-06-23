@@ -19,19 +19,7 @@ defmodule Relixir do
     x <- (#{rCode})
     cat(serialize(connection=stdout(), object=x))
     """
-    port = Port.open({:spawn_executable, littlerExec()},
-                     [{:args, ["-e",script]},
-                     :stream, :binary, :exit_status, :hide, :use_stdio, :stderr_to_stdout])
-    data = receive do
-      {^port, {:data, data}} -> data
-    end
-
-    receive do
-      {^port, {:exit_status, status}}  when status > 0 ->
-        {:error, data}
-      {^port, {:exit_status, status}}  when status == 0 ->
-        data
-    end
+    openRPort(script)
   end
 
   def runR(rCode, export, %{"output" => output}) when (is_binary(rCode) and is_binary(export)) do
@@ -40,6 +28,10 @@ defmodule Relixir do
     x <- (#{rCode})
     cat(#{exportCmd})
     """
+    openRPort(script)
+  end
+
+  defp openRPort(script) do
     port = Port.open({:spawn_executable, littlerExec()},
                      [{:args, ["-e",script]},
                      :stream, :binary, :exit_status, :hide, :use_stdio, :stderr_to_stdout])
@@ -54,7 +46,6 @@ defmodule Relixir do
         data
     end
   end
-
   # TODO
   # def callRFunc(rCode, args) when is_binary(rCode) do
   #   port = Port.open({:spawn_executable, littlerExec()},
