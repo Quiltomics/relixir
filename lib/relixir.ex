@@ -16,8 +16,9 @@ defmodule Relixir do
   def runR(rCode, export \\ "", opts \\ %{"output" => "R"})
   def runR(rCode, export, _ ) when (is_binary(rCode) and (export == "")) do
     script = """
-    x <- (#{rCode})
-    cat(serialize(connection=stdout(), object=x))
+    tmpVar <- sprintf("tmp%03s", sample(1:100,1))
+    assign(tmpVar, {#{rCode}})
+    cat(serialize(connection=stdout(), object=get(tmpVar)))
     """
     openRPort(script)
   end
@@ -25,7 +26,7 @@ defmodule Relixir do
   def runR(rCode, export, %{"output" => output}) when (is_binary(rCode) and is_binary(export)) do
     exportCmd = if (output == "json"), do: "jsonlite::toJSON(#{export}, force=TRUE)", else: "serialize(connection=stdout(), object=#{export})"
     script = """
-    x <- (#{rCode})
+    #{rCode}
     cat(#{exportCmd})
     """
     openRPort(script)
