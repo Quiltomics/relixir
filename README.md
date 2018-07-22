@@ -35,17 +35,15 @@ rCode = """
     y <- hist(x,plot=FALSE)
     """
 result = Relixir.runR(rCode, "y", %{"output" => "json"})
-    
 ```
 
-```relixir
+```elixir
 # Read a csv file and return the column names
 cnames = Relixir.runR("""
     X <-read.csv("#{csvFilePath}")
     cnames <- colnames(X)
     ""","cnames")
 ```
-
 
 ## Prospective contributors
 Interest and/or skills in R internals and/or Elixir software development required.  
