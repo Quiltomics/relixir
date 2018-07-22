@@ -21,6 +21,32 @@ At [Bioquilt](http://www.bioquilt.com), we use Elixir to power our web stack whi
 - [ ] Trailblaze new code for calling Elixir from R
 - [ ] Once `R <--> Elixir` bridge is complete, wrap up the methods into a package like [reticulate](https://github.com/rstudio/reticulate) 
 
+## On-going work
+
+At the time of this writing, `relixir` provides a wrapper around the R command-line utility [littler](http://dirk.eddelbuettel.com/code/littler.html).
+`Relixir` supports executing a chunk of R code, returning a variable in the format of an R-object, or a JSON string. Support for R-object is intended for a future feature: piping R-returned output in Elixir style. For direct use of the output, JSON is recommended.
+
+Below are some example calls of `Relixir.runR`. `bioq` repo gives an example how `Relixir` can be used to provide R computational service in a web-app.
+
+```elixir
+# Generate n samples from the normal distribution with default mean and sd, return a histogram in JSON format
+rCode = """
+    x <- rnorm(n=#{size})
+    y <- hist(x,plot=FALSE)
+    """
+result = Relixir.runR(rCode, "y", %{"output" => "json"})
+    
+```
+
+```relixir
+# Read a csv file and return the column names
+cnames = Relixir.runR("""
+    X <-read.csv("#{csvFilePath}")
+    cnames <- colnames(X)
+    ""","cnames")
+```
+
+
 ## Prospective contributors
 Interest and/or skills in R internals and/or Elixir software development required.  
 

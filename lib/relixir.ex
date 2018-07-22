@@ -11,7 +11,8 @@ defmodule Relixir do
   """
 
   @doc """
-  Execute a chunk of R code via little r command
+  Execute a chunk of `rCode` via little r command, returning the `export` variable in the `output format.
+  2 types of outputs are supported, `R` and `json`. Both are treated as binary in Elixir.
   """
   def runR(rCode, export \\ "", opts \\ %{"output" => "R"})
   def runR(rCode, export, _ ) when (is_binary(rCode) and (export == "")) do
